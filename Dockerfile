@@ -26,8 +26,13 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
-RUN adduser --disabled-password --gecos "" ${USER} && \
-echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN adduser --disabled-password --gecos "" ${USER} \
+&& echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# RUN echo '${USER}:${USER}' | chpasswd
+RUN sed 's/PermitEmptyPasswords no/PermitEmptyPasswords yes/' -i /etc/ssh/sshd_config
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN cat /etc/ssh/sshd_config
 
 ENV SSHDIR ${HOME}/.ssh/
 RUN mkdir -p ${SSHDIR}
